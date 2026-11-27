@@ -1,16 +1,34 @@
 import { readFileSync } from 'node:fs';
 
-function smoke(html, initialHash='#module-1'){
+function smoke(html, initialHash='#home'){
  const ids=new Set([...html.matchAll(/\bid="([^"]+)"/g)].map(m=>m[1]));
  const script=html.match(/<script>([\s\S]*?)<\/script>/)[1];
  const elements=new Map(),defaults={wave:"all",channel:"all",mSample:"80",mTarget:"40",mN:"600",mWave:"4",mOutcome:"productSatisfied",mChannel:"all",segK:"4",vocWave:"all",vocChannel:"all",vocThreshold:"50",pfW1:"3",pfW2:"3",pfW3:"2",pfW4:"2",pfBudget:"500",pfReserve:"10",pfCapacity:"10",pfCutoff:"2",pfActual:"200",pfRemainingVariance:"0",pfPriceWeight:"25",ldCase:"track",ldRole:"quant",ldSkillTarget:"4",ldPeriod:"2"};
- function el(id){if(!ids.has(id)&&id!=="backHub"&&!/^vocReview-(unclearInfo|navigation|support|accessibility|controls)$/.test(id))throw Error("Missing DOM element: "+id);if(!elements.has(id))elements.set(id,{value:defaults[id]||"",innerHTML:"",textContent:"",checked:false,disabled:false,handlers:{},hidden:false,addEventListener(k,fn){this.handlers[k]=fn},classList:{toggle(){}},setAttribute(){},removeAttribute(){},focus(){}});return elements.get(id)}
- const document={getElementById:el,querySelectorAll:()=>[]};
+ function el(id){if(!ids.has(id)&&id!=="backHub"&&!/^vocReview-(unclearInfo|navigation|support|accessibility|controls)$/.test(id))throw Error("Missing DOM element: "+id);if(!elements.has(id))elements.set(id,{value:defaults[id]||"",innerHTML:"",textContent:"",checked:false,disabled:false,handlers:{},hidden:false,style:{},classes:new Set(),addEventListener(k,fn){this.handlers[k]=fn},classList:{toggle(name,on){const item=elements.get(id);if(on)item.classes.add(name);else item.classes.delete(name)}},setAttribute(){},removeAttribute(){},focus(){}});return elements.get(id)}
+ const browserHandlers={};
+ const document={getElementById:el,querySelectorAll:()=>[],defaultView:{addEventListener(k,fn){browserHandlers[k]=fn}}};
+ const location={hash:initialHash};const history={replaceState(a,b,hash){location.hash=hash},pushState(a,b,hash){location.hash=hash}};
  return new Function("document","location","history",script+`
  const assert=(cond,msg)=>{if(!cond)throw Error(msg)};
  assert(survey.length===2400,"Survey size");
  assert(survey.every(r=>r.needs.length===6&&r.needs.every(v=>Number.isInteger(v)&&v>=1&&v<=7)),"Needs scale");
  if(location.hash==='#module-6'){assert(ldEvidence&&segmentResult,'Direct leadership startup');assert(Number($('segK').value)===segmentResult.defaultK,'Direct leadership startup preserves suggested segmentation default');}
+
+ const initial=parseRoute(location.hash);
+ assert(activeRoute===initial.route,"Initial route");
+ assert(initial.route!==-2||tourIndex===initial.step,"Initial executive step");
+ const viewIds=['landing','executiveTour','technicalTour','hub','methodology','segmentation','voice','portfolio','leadership'];
+ const visible=()=>viewIds.filter(id=>!$(id).classes.has("hide"));
+ assert(visible().length===1,"One visible view on entry");
+ navigate(-1);assert(activeRoute===-1&&visible()[0]==="landing"&&location.hash==="#home","Home route");
+ navigate(-2,{step:0});assert(visible()[0]==="executiveTour"&&$('tourPrev').disabled&&$('tourStatus').textContent.includes("Stop 1 of 5"),"Tour start");
+ for(let i=1;i<5;i++){$('tourNext').handlers.click();assert(tourIndex===i&&location.hash==="#executive-"+(i+1)&&$('tourStatus').textContent.includes("Stop "+(i+1)+" of 5"),"Next tour step")}
+ $('tourPrev').handlers.click();assert(tourIndex===3,"Previous step");
+ $('tourNext').handlers.click();$('tourNext').handlers.click();assert(activeRoute===-3&&visible()[0]==="technicalTour","Finish tour");
+ assert(ENTRY_TECH.length===6&&$('techCards').innerHTML.includes("Open module 6"),"Technical navigation cards");
+ location.hash="#executive-3";syncRoute();assert(activeRoute===-2&&tourIndex===2,"Hash navigation");
+ navigate(3);navigate(-2);assert(tourIndex===2,"Resume executive tour");
+ assert(parseRoute("#unknown").route===-1&&parseRoute("#module-6").route===5&&parseRoute("#technical").route===-3,"Route parsing");
  const original=JSON.stringify(survey);
  navigate(1);
  assert($('mWeights').innerHTML.includes('76.0%')&&$('mWeights').innerHTML.includes('68.0%')&&$('mWeights').innerHTML.includes('300'),"Calibration example");
@@ -112,7 +130,7 @@ function smoke(html, initialHash='#module-1'){
  assert(JSON.stringify(survey)===original,"Leadership module mutated survey");
  for(let i=0;i<6;i++)navigate(i);
  return {suggestedK:segmentResult.recommend,variance:segmentResult.variance,summaries,vocSummary,pfSummary,leadershipSummary};
- `)(document,{hash:initialHash},{replaceState(){}});
+ `)(document,location,history);
 }
 
 const result = smoke(readFileSync(new URL('../index.html', import.meta.url), 'utf8'));
@@ -121,5 +139,5 @@ console.table(result.summaries.map(({profiles,...summary})=>summary));
 console.log('Voice of Customer:',result.vocSummary);
 console.log('Research portfolio:',result.pfSummary);
 console.log('Leadership & governance:',result.leadershipSummary);
-smoke(readFileSync(new URL('../index.html', import.meta.url), 'utf8'), '#module-6');
-console.log('Direct leadership entry regression passed');
+for (const hash of ['#module-6','#executive-3','#technical']) smoke(readFileSync(new URL('../index.html', import.meta.url), 'utf8'),hash);
+console.log('Direct leadership, executive tour and technical entry regressions passed');
