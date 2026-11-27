@@ -66,6 +66,13 @@ function smoke(html){
  assert(portfolioEvaluate(["TRACK","VOCQA","INNOV"],cfg).issues.some(x=>x.includes("requires CLARITY")),"Dependency warning");
  const limited=portfolioOptimize({...cfg,budget:400}),expanded=portfolioOptimize({...cfg,budget:600});
  assert(limited&&expanded&&limited.value<=plan.value+1e-8&&expanded.value>=plan.value-1e-8,"Budget sensitivity");
+ const protectedPlan=portfolioOptimize({...cfg,protect:true});
+ assert(protectedPlan&&protectedPlan.chosen.some(x=>x.id==="ACCESS")&&protectedPlan.chosen.some(x=>x.id==="HEALTH"),"Strategic guardrail");
+ assert(portfolioOptimize({...cfg,budget:300,protect:true})===null,"Guardrail infeasibility");
+ $('pfProtect').checked=true;portfolioRender();assert($('pfPlanStatus').textContent.includes("Strategic guardrail"),"Guardrail warns on current manual selection");
+ $('pfApply').handlers.click();assert(portfolioEvaluate([...pfSelected],portfolioSettings()).feasible,"Apply guarded recommendation");
+ $('pfReset').handlers.click();assert(!$('pfProtect').checked,"Reset guardrail");
+ $('pfActual').value="-5";assert(portfolioForecast(plan,cfg)===null,"Reject invalid actuals");$('pfActual').value="200";
  const forecast=portfolioForecast(plan,cfg);
  assert(forecast.forecast===forecast.actual+forecast.remaining,"Spend forecast");
  const rankings=portfolioVendor(25);
@@ -73,7 +80,7 @@ function smoke(html){
  assert(portfolioVendor(10)[0].id==="V-B"&&portfolioVendor(60)[0].id==="V-A","Price-weight sensitivity");
  $('pfBudget').value="200";portfolioRender();assert($('pfPlanStatus').textContent.includes("requires review"),"Manual plan constraint change");
  $('pfReset').handlers.click();assert(portfolioEvaluate([...pfSelected],portfolioSettings()).feasible,"Reset feasible");
- const pfSummary={chosen:plan.chosen.map(x=>({id:x.id,name:x.name,cost:x.cost.reduce((a,b)=>a+b,0)})),total:plan.total,spend:plan.spend,load:plan.load,score:plan.value,limit:plan.limit,forecast,vendors:rankings.map(v=>({id:v.id,passed:v.passed,total:v.total})),constrained:{total:limited.total,ids:limited.chosen.map(x=>x.id)},expanded:{total:expanded.total,ids:expanded.chosen.map(x=>x.id)}};
+ const pfSummary={chosen:plan.chosen.map(x=>({id:x.id,name:x.name,cost:x.cost.reduce((a,b)=>a+b,0)})),total:plan.total,spend:plan.spend,load:plan.load,score:plan.value,limit:plan.limit,forecast,vendors:rankings.map(v=>({id:v.id,passed:v.passed,total:v.total})),protected:{total:protectedPlan.total,ids:protectedPlan.chosen.map(x=>x.id),load:protectedPlan.load,score:protectedPlan.value},constrained:{total:limited.total,ids:limited.chosen.map(x=>x.id)},expanded:{total:expanded.total,ids:expanded.chosen.map(x=>x.id)}};
  assert(JSON.stringify(survey)===original,"Portfolio module mutated survey");
  for(let i=0;i<6;i++)navigate(i);
  return {suggestedK:segmentResult.recommend,variance:segmentResult.variance,summaries,vocSummary,pfSummary};
