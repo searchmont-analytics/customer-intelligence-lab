@@ -60,3 +60,13 @@ Run `node tests/smoke.mjs` using a modern Node.js installation. The test checks 
 - Never use proprietary OLG records, branding implying affiliation, or sensitive gambling data for promotional targeting.
 
 This independent demo does not represent OLG, and does not contain internal OLG data.
+
+## Browser quality checks
+The application remains a standalone offline-capable HTML file. For an optional real-browser test, run from the repository root:
+
+```sh
+npm install --no-save --no-package-lock playwright@1.56.1
+npx playwright install chromium
+node tests/browser.mjs
+````
+The suite covers desktop (1440px), tablet (768px), mobile (390px and 320px), all six modules and entry routes, viewport overflow, navigation, career timeline, keyboard focus, wide table scrolling and selected module controls. Screenshots are saved in `tests/output/`. The read-only **Browser quality checks** workflow runs the simulated regression and Chromium tests on relevant pushes and pull requests, and can be started manually. Successful simulated tests alone are not evidence that real-browser or assistive-technology testing passed.
