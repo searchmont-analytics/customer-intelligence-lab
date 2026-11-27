@@ -1,10 +1,10 @@
 # Beyond the Numbers — Customer Intelligence & Research Lab
 
-Release 0.1: Executive Customer Insights Hub. Open `index.html` in a modern browser; no installation, server, API key or internet connection is required (public source links do require internet). The website is a self-contained prototype for easy review and future migration into a modular repository.
+Release 0.2: Executive Customer Insights Hub + Research Methodology Lab. Open `index.html` in a modern browser; no installation, server, API key or internet connection is required (public source links do require internet). The website is a self-contained prototype for easy review and future migration into a modular repository.
 
 ## Roadmap
 1. Executive insights hub — implemented: public scorecard, executive decision brief, synthetic study filters, Wilson intervals, cross-tabs, association analysis, CSV export, research recommendations and source register.
-2. Research methodology — questionnaire, sampling, weighting, cross-tabs, significance, tracking.
+2. Research methodology — implemented: questionnaire split-ballot design, calibration and Kish effective sample size, cross-tabs, independent-wave z-test and fixed-mix tracking. Includes proposed research approval gates.
 3. Customer segmentation — needs-based clusters, stability, interpretation, responsible-use safeguards.
 4. Voice of Customer — synthetic interviews/comments, thematic coding, human validation, evidence triangulation.
 5. Research portfolio & budget — intake, prioritization, allocation, vendor evaluation.
