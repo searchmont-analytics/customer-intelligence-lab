@@ -41,7 +41,8 @@ try {
     const early = page.locator('.profile-timeline');
     assert.equal(await early.locator('h4').filter({hasText:'Voice Network Analyst · OLG'}).count(),1);
     assert.equal(await early.locator('h4').filter({hasText:'Quality Assurance Analyst · OLG'}).count(),1);
-    assert.match(await early.innerText(),/2 years\s+Voice Network Analyst/);
+    assert.match(await early.innerText(),/2007–2009\s+Voice Network Analyst/);
+    assert.match(await early.innerText(),/2009–2011\*\s+Quality Assurance Analyst/);
     await page.locator('#skipToContent').focus();
     await page.keyboard.press('Enter');
     assert.equal(new URL(page.url()).hash,'#experience');
