@@ -1,11 +1,12 @@
 # Beyond the Numbers — Customer Intelligence & Research Lab
 
-Release 0.7: all six modules plus a redesigned landing page, five-stop executive guided tour and technical research pathway. Open `index.html` in a modern browser; no installation, server, API key or internet connection is required (public source links do require internet). The website is a self-contained prototype for easy review and future migration into a modular repository.
+Release 0.8: all six research modules, two guided entry experiences and a professional experience / role-alignment page. Open `index.html` in a modern browser; no installation, server, API key or internet connection is required (public source links do require internet). The website is a self-contained prototype for easy review and future migration into a modular repository.
 
 ## Start here
 - `index.html` or `#home`: portfolio overview and choice of two experiences.
 - `#executive-1` through `#executive-5`: a roughly five-minute, self-paced decision narrative. Each stop links to the detailed supporting module; the sidebar resumes the current tour step in this browser session. Tour numbers are fixed baseline snapshots, not live filtered values.
 - `#technical`: six-module capability map with suggested experiments, methods, limitations and available exports.
+- `#experience`: professional background, selected examples of transferable work, and a role-alignment matrix linking experience to the independent demonstrations. Career facts are based on the author's public professional portfolio at https://travis-mccormack-analytics.com/ ; no private CV or internal employer material is reproduced. Distinguish demonstrated methods from claims about employment experience.
 - `#module-1` through `#module-6`: direct entry to any original interactive module. Browser history and hash navigation preserve these routes.
 
 ## Roadmap
@@ -46,7 +47,7 @@ Release 0.7: all six modules plus a redesigned landing page, five-stop executive
 - Transferable leadership principles are framed as a proposed approach, not independently verified employment claims.
 
 ## Local regression smoke test
-Run `node tests/smoke.mjs` using a modern Node.js installation. The test checks the shared survey, calibration example, all cluster candidates, PCA, feedback linkage, classifier metrics, threshold behavior, filter rendering, session review workflow, portfolio feasibility and constraint checks, spend forecast, supplier screening, governance gate outcomes, live portfolio linkage, coaching gaps, roadmap dependency cascades, scorecard missingness all six module views, landing and pathway visibility, executive tour sequencing, route parsing and direct executive/technical/leadership entry. This is not a real browser test.
+Run `node tests/smoke.mjs` using a modern Node.js installation. The test checks the shared survey, calibration example, all cluster candidates, PCA, feedback linkage, classifier metrics, threshold behavior, filter rendering, session review workflow, portfolio feasibility and constraint checks, spend forecast, supplier screening, governance gate outcomes, live portfolio linkage, coaching gaps, roadmap dependency cascades, scorecard missingness all six module views, landing and pathway visibility, executive tour sequencing, route parsing and direct executive/technical/leadership/experience entry, profile evidence links and skip-to-content navigation. This is not a real browser test.
 
 ## Validation before public deployment
 - Review copy, source pages, and methodology; add a prominent portfolio disclaimer on every page.
