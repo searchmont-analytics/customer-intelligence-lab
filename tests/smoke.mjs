@@ -37,6 +37,7 @@ function smoke(html){
  assert(new Set(vocState.feedback.map(f=>f.id)).size===vocState.feedback.length&&vocState.feedback.every(f=>allIds.has(f.respondentId)),"Feedback linkage");
  assert(vocState.feedback.every(f=>VOC_THEMES.every(t=>Number.isFinite(f.prediction.scores[t.key])&&f.prediction.scores[t.key]>=0&&f.prediction.scores[t.key]<=1)),"ML scores");
  const validation=vocValidate(vocState.feedback,.5);
+ assert($('vocGate').textContent.includes('NOT READY')&&$('vocBrief').textContent.includes('Model quality warning'),"Default quality gate and executive warning");
  assert(validation.byTheme.every(m=>m.tp+m.fp+m.fn+m.tn===vocState.feedback.length),"Confusion accounting");
  assert([validation.micro,validation.exact,validation.accuracy].every(v=>Number.isFinite(v)&&v>=0&&v<=1),"Validation metrics");
  const low=vocState.feedback.reduce((s,f)=>s+vocLabels(f,.25).length,0),high=vocState.feedback.reduce((s,f)=>s+vocLabels(f,.85).length,0);
