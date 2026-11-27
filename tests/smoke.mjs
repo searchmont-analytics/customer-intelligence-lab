@@ -17,7 +17,7 @@ function smoke(html, initialHash='#home'){
  const initial=parseRoute(location.hash);
  assert(activeRoute===initial.route,"Initial route");
  assert(initial.route!==-2||tourIndex===initial.step,"Initial executive step");
- const viewIds=['landing','executiveTour','technicalTour','hub','methodology','segmentation','voice','portfolio','leadership'];
+ const viewIds=['landing','executiveTour','technicalTour','experience','hub','methodology','segmentation','voice','portfolio','leadership'];
  const visible=()=>viewIds.filter(id=>!$(id).classes.has("hide"));
  assert(visible().length===1,"One visible view on entry");
  navigate(-1);assert(activeRoute===-1&&visible()[0]==="landing"&&location.hash==="#home","Home route");
@@ -25,10 +25,19 @@ function smoke(html, initialHash='#home'){
  for(let i=1;i<5;i++){$('tourNext').handlers.click();assert(tourIndex===i&&location.hash==="#executive-"+(i+1)&&$('tourStatus').textContent.includes("Stop "+(i+1)+" of 5"),"Next tour step")}
  $('tourPrev').handlers.click();assert(tourIndex===3,"Previous step");
  $('tourNext').handlers.click();$('tourNext').handlers.click();assert(activeRoute===-3&&visible()[0]==="technicalTour","Finish tour");
+
  assert(ENTRY_TECH.length===6&&$('techCards').innerHTML.includes("Open module 6"),"Technical navigation cards");
+ navigate(-4);assert(activeRoute===-4&&visible().length===1&&visible()[0]==="experience"&&location.hash==="#experience","Professional background route");
+ assert(PROFILE_PILLARS.length===3&&PROFILE_WORK.length===4&&PROFILE_FIT.length===6,"Profile evidence structure");
+ assert(PROFILE_FIT.every(x=>x.modules.every(m=>Number.isInteger(m)&&m>=0&&m<6)),"Profile module destinations");
+ assert($('profilePillars').innerHTML.includes("Professional foundation")&&$('profileWork').innerHTML.includes("Independent model validation project")&&$('profileFit').innerHTML.includes("Integrate customer, behavioural and research evidence"),"Profile rendering");
+ let skipPrevented=false;$('skipToContent').handlers.click({preventDefault(){skipPrevented=true}});assert(skipPrevented&&activeRoute===-4&&location.hash==="#experience","Skip link preserves current route");
+ location.hash="#experience";syncRoute();assert(activeRoute===-4,"Profile hash route");
+ navigate(5);navigate(-4);assert(visible()[0]==="experience","Return to profile from module");
+ 
  location.hash="#executive-3";syncRoute();assert(activeRoute===-2&&tourIndex===2,"Hash navigation");
  navigate(3);navigate(-2);assert(tourIndex===2,"Resume executive tour");
- assert(parseRoute("#unknown").route===-1&&parseRoute("#module-6").route===5&&parseRoute("#technical").route===-3,"Route parsing");
+ assert(parseRoute("#unknown").route===-1&&parseRoute("#module-6").route===5&&parseRoute("#technical").route===-3&&parseRoute("#experience").route===-4,"Route parsing");
  const original=JSON.stringify(survey);
  navigate(1);
  assert($('mWeights').innerHTML.includes('76.0%')&&$('mWeights').innerHTML.includes('68.0%')&&$('mWeights').innerHTML.includes('300'),"Calibration example");
@@ -139,5 +148,5 @@ console.table(result.summaries.map(({profiles,...summary})=>summary));
 console.log('Voice of Customer:',result.vocSummary);
 console.log('Research portfolio:',result.pfSummary);
 console.log('Leadership & governance:',result.leadershipSummary);
-for (const hash of ['#module-6','#executive-3','#technical']) smoke(readFileSync(new URL('../index.html', import.meta.url), 'utf8'),hash);
-console.log('Direct leadership, executive tour and technical entry regressions passed');
+for (const hash of ['#module-6','#executive-3','#technical','#experience']) smoke(readFileSync(new URL('../index.html', import.meta.url), 'utf8'),hash);
+console.log('Direct leadership, executive tour, technical and professional background entry regressions passed');
