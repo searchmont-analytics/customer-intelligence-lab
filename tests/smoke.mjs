@@ -2,9 +2,14 @@ import { readFileSync } from 'node:fs';
 
 function smoke(html, initialHash='#home'){
  const ids=new Set([...html.matchAll(/\bid="([^"]+)"/g)].map(m=>m[1]));
+ const staticAssert=(ok,msg)=>{if(!ok)throw Error(msg)};
+ staticAssert(html.includes("Voice Network Analyst · OLG</h4>")&&html.includes("Quality Assurance Analyst · OLG</h4>")&&!html.includes("Voice Network Analyst &amp; Quality Assurance Analyst"),"Distinct career roles");
+ staticAssert(html.includes('<span class="profile-year">2 years</span>'),"Voice Network tenure");
+ const sectionCounts=[6,6,6,7,8,8],sectionIds=["hub","methodology","segmentation","voice","portfolio","leadership"];for(let i=0;i<sectionIds.length;i++){for(let j=0;j<sectionCounts[i];j++){const id="section-"+sectionIds[i]+"-"+j;staticAssert(ids.has(id)&&html.includes('data-jump="'+id+'"'),"Section navigation: "+id)}}
+ staticAssert((html.match(/role="region" tabindex="0" aria-label=/g)||[]).length>=15,"Focusable tables");
  const script=html.match(/<script>([\s\S]*?)<\/script>/)[1];
  const elements=new Map(),defaults={wave:"all",channel:"all",mSample:"80",mTarget:"40",mN:"600",mWave:"4",mOutcome:"productSatisfied",mChannel:"all",segK:"4",vocWave:"all",vocChannel:"all",vocThreshold:"50",pfW1:"3",pfW2:"3",pfW3:"2",pfW4:"2",pfBudget:"500",pfReserve:"10",pfCapacity:"10",pfCutoff:"2",pfActual:"200",pfRemainingVariance:"0",pfPriceWeight:"25",ldCase:"track",ldRole:"quant",ldSkillTarget:"4",ldPeriod:"2"};
- function el(id){if(!ids.has(id)&&id!=="backHub"&&!/^vocReview-(unclearInfo|navigation|support|accessibility|controls)$/.test(id))throw Error("Missing DOM element: "+id);if(!elements.has(id))elements.set(id,{value:defaults[id]||"",innerHTML:"",textContent:"",checked:false,disabled:false,handlers:{},hidden:false,style:{},classes:new Set(),addEventListener(k,fn){this.handlers[k]=fn},classList:{toggle(name,on){const item=elements.get(id);if(on)item.classes.add(name);else item.classes.delete(name)}},setAttribute(){},removeAttribute(){},focus(){}});return elements.get(id)}
+ function el(id){if(!ids.has(id)&&id!=="backHub"&&!/^vocReview-(unclearInfo|navigation|support|accessibility|controls)$/.test(id))throw Error("Missing DOM element: "+id);if(!elements.has(id))elements.set(id,{value:defaults[id]||"",innerHTML:"",textContent:"",checked:false,disabled:false,handlers:{},hidden:false,style:{},classes:new Set(),addEventListener(k,fn){this.handlers[k]=fn},classList:{toggle(name,on){const item=elements.get(id);if(on)item.classes.add(name);else item.classes.delete(name)}},attributes:{},setAttribute(k,v){this.attributes[k]=v},removeAttribute(k){delete this.attributes[k]},focus(){}});return elements.get(id)}
  const browserHandlers={};
  const document={getElementById:el,querySelectorAll:()=>[],defaultView:{addEventListener(k,fn){browserHandlers[k]=fn}}};
  const location={hash:initialHash};const history={replaceState(a,b,hash){location.hash=hash},pushState(a,b,hash){location.hash=hash}};
@@ -20,6 +25,13 @@ function smoke(html, initialHash='#home'){
  const viewIds=['landing','executiveTour','technicalTour','experience','hub','methodology','segmentation','voice','portfolio','leadership'];
  const visible=()=>viewIds.filter(id=>!$(id).classes.has("hide"));
  assert(visible().length===1,"One visible view on entry");
+ assert($('contextTitle').textContent.length>0,"Context title");
+ $('menuToggle').handlers.click();assert(mobileMenuOpen&&$('sidebar').classes.has("menu-open")&&$('menuToggle').attributes['aria-expanded']==="true","Open accessible mobile menu");
+ navigate(-1);assert(!mobileMenuOpen&&!$('sidebar').classes.has("menu-open")&&$('menuToggle').attributes['aria-expanded']==="false","Navigation closes menu");
+ $('mastExecutive').handlers.click();assert(activeRoute===-2&&tourIndex===0,"Masthead executive route");
+ $('mastHome').handlers.click();assert(activeRoute===-1,"Masthead home route");
+ assert($('nav').innerHTML.includes("Research capabilities")&&$('nav').innerHTML.includes("Explore the portfolio"),"Grouped navigation");
+ 
  navigate(-1);assert(activeRoute===-1&&visible()[0]==="landing"&&location.hash==="#home","Home route");
  navigate(-2,{step:0});assert(visible()[0]==="executiveTour"&&$('tourPrev').disabled&&$('tourStatus').textContent.includes("Stop 1 of 5"),"Tour start");
  for(let i=1;i<5;i++){$('tourNext').handlers.click();assert(tourIndex===i&&location.hash==="#executive-"+(i+1)&&$('tourStatus').textContent.includes("Stop "+(i+1)+" of 5"),"Next tour step")}
@@ -39,6 +51,8 @@ function smoke(html, initialHash='#home'){
  navigate(3);navigate(-2);assert(tourIndex===2,"Resume executive tour");
  assert(parseRoute("#unknown").route===-1&&parseRoute("#module-6").route===5&&parseRoute("#technical").route===-3&&parseRoute("#experience").route===-4,"Route parsing");
  const original=JSON.stringify(survey);
+ assert($('contextTitle').textContent==="Executive tour"||$('contextTitle').textContent==="Executive guided tour","Context route");
+ 
  navigate(1);
  assert($('mWeights').innerHTML.includes('76.0%')&&$('mWeights').innerHTML.includes('68.0%')&&$('mWeights').innerHTML.includes('300'),"Calibration example");
  navigate(2);
