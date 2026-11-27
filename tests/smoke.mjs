@@ -3,8 +3,8 @@ import { readFileSync } from 'node:fs';
 function smoke(html){
  const ids=new Set([...html.matchAll(/\bid="([^"]+)"/g)].map(m=>m[1]));
  const script=html.match(/<script>([\s\S]*?)<\/script>/)[1];
- const elements=new Map(),defaults={wave:"all",channel:"all",mSample:"80",mTarget:"40",mN:"600",mWave:"4",mOutcome:"productSatisfied",mChannel:"all",segK:"4",vocWave:"all",vocChannel:"all",vocThreshold:"50"};
- function el(id){if(!ids.has(id)&&id!=="backHub"&&!/^vocReview-(unclearInfo|navigation|support|accessibility|controls)$/.test(id))throw Error("Missing DOM element: "+id);if(!elements.has(id))elements.set(id,{value:defaults[id]||"",innerHTML:"",textContent:"",checked:false,handlers:{},hidden:false,addEventListener(k,fn){this.handlers[k]=fn},classList:{toggle(){}},setAttribute(){},removeAttribute(){},focus(){}});return elements.get(id)}
+ const elements=new Map(),defaults={wave:"all",channel:"all",mSample:"80",mTarget:"40",mN:"600",mWave:"4",mOutcome:"productSatisfied",mChannel:"all",segK:"4",vocWave:"all",vocChannel:"all",vocThreshold:"50",pfW1:"3",pfW2:"3",pfW3:"2",pfW4:"2",pfBudget:"500",pfReserve:"10",pfCapacity:"10",pfCutoff:"2",pfActual:"200",pfRemainingVariance:"0",pfPriceWeight:"25"};
+ function el(id){if(!ids.has(id)&&id!=="backHub"&&!/^vocReview-(unclearInfo|navigation|support|accessibility|controls)$/.test(id))throw Error("Missing DOM element: "+id);if(!elements.has(id))elements.set(id,{value:defaults[id]||"",innerHTML:"",textContent:"",checked:false,disabled:false,handlers:{},hidden:false,addEventListener(k,fn){this.handlers[k]=fn},classList:{toggle(){}},setAttribute(){},removeAttribute(){},focus(){}});return elements.get(id)}
  const document={getElementById:el,querySelectorAll:()=>[]};
  return new Function("document","location","history",script+`
  const assert=(cond,msg)=>{if(!cond)throw Error(msg)};
@@ -51,8 +51,32 @@ function smoke(html){
  $('vocReviewNext').handlers.click();assert($('vocReviewSelect').value===vocState.queue[1],"Review next");
  const vocSummary={feedback:vocState.feedback.length,journeys:vocState.journeys.length,training:vocState.model.size,microF1:validation.micro,exact:validation.exact,toneAccuracy:validation.accuracy,byTheme:validation.byTheme,themeCounts:VOC_THEMES.map(t=>({name:t.name,count:vocState.feedback.filter(f=>f.prediction.scores[t.key]>=.5).length})),noncompletion:vocState.journeys.filter(j=>!j.completed).length};
  assert(JSON.stringify(survey)===original,"Voice module mutated survey");
+
+ navigate(4);
+ const cfg=portfolioSettings(),plan=portfolioOptimize(cfg);
+ assert(plan&&plan.feasible,"Default portfolio feasibility");
+ assert(plan.total<=cfg.budget*(1-cfg.reserve)&&plan.load.every(n=>n<=cfg.capacity),"Budget and quarter capacity");
+ assert(plan.chosen.some(x=>x.id==="TRACK")&&plan.chosen.some(x=>x.id==="VOCQA"),"Required work");
+ assert(!plan.chosen.some(x=>x.id==="CLARITY")||!plan.chosen.some(x=>x.id==="DUP"),"Duplicate prevention");
+ assert(plan.chosen.every(x=>x.deps.every(d=>plan.chosen.some(y=>y.id===d))),"Dependency constraints");
+ assert(plan.spend.reduce((a,b)=>a+b,0)===plan.total,"Quarter reconciliation");
+ assert(portfolioOptimize({...cfg,budget:100})===null&&portfolioOptimize({...cfg,capacity:3})===null,"Infeasibility");
+ assert(portfolioOptimize({...cfg,weights:[0,0,0,0]})===null,"Invalid weights");
+ assert(portfolioEvaluate(["TRACK","VOCQA","CLARITY","DUP"],cfg).issues.some(x=>x.includes("Overlapping")),"Duplicate warning");
+ assert(portfolioEvaluate(["TRACK","VOCQA","INNOV"],cfg).issues.some(x=>x.includes("requires CLARITY")),"Dependency warning");
+ const limited=portfolioOptimize({...cfg,budget:400}),expanded=portfolioOptimize({...cfg,budget:600});
+ assert(limited&&expanded&&limited.value<=plan.value+1e-8&&expanded.value>=plan.value-1e-8,"Budget sensitivity");
+ const forecast=portfolioForecast(plan,cfg);
+ assert(forecast.forecast===forecast.actual+forecast.remaining,"Spend forecast");
+ const rankings=portfolioVendor(25);
+ assert(rankings[0].passed&&rankings[2].id==="V-C"&&!rankings[2].passed&&Number.isNaN(rankings[2].total),"Mandatory vendor screen");
+ assert(portfolioVendor(10)[0].id==="V-B"&&portfolioVendor(60)[0].id==="V-A","Price-weight sensitivity");
+ $('pfBudget').value="200";portfolioRender();assert($('pfPlanStatus').textContent.includes("requires review"),"Manual plan constraint change");
+ $('pfReset').handlers.click();assert(portfolioEvaluate([...pfSelected],portfolioSettings()).feasible,"Reset feasible");
+ const pfSummary={chosen:plan.chosen.map(x=>({id:x.id,name:x.name,cost:x.cost.reduce((a,b)=>a+b,0)})),total:plan.total,spend:plan.spend,load:plan.load,score:plan.value,limit:plan.limit,forecast,vendors:rankings.map(v=>({id:v.id,passed:v.passed,total:v.total})),constrained:{total:limited.total,ids:limited.chosen.map(x=>x.id)},expanded:{total:expanded.total,ids:expanded.chosen.map(x=>x.id)}};
+ assert(JSON.stringify(survey)===original,"Portfolio module mutated survey");
  for(let i=0;i<6;i++)navigate(i);
- return {suggestedK:segmentResult.recommend,variance:segmentResult.variance,summaries,vocSummary};
+ return {suggestedK:segmentResult.recommend,variance:segmentResult.variance,summaries,vocSummary,pfSummary};
  `)(document,{hash:"#module-1"},{replaceState(){}});
 }
 
@@ -60,3 +84,4 @@ const result = smoke(readFileSync(new URL('../index.html', import.meta.url), 'ut
 console.log('Smoke test passed; suggested k =', result.suggestedK);
 console.table(result.summaries.map(({profiles,...summary})=>summary));
 console.log('Voice of Customer:',result.vocSummary);
+console.log('Research portfolio:',result.pfSummary);
