@@ -1,13 +1,16 @@
 # Beyond the Numbers — Customer Intelligence & Research Lab
 
-Release 0.8: all six research modules, two guided entry experiences and a professional experience / role-alignment page. Open `index.html` in a modern browser; no installation, server, API key or internet connection is required (public source links do require internet). The website is a self-contained prototype for easy review and future migration into a modular repository.
+Release 0.9: premium executive design system across all six modules, both guided pathways and the professional experience page. Includes grouped desktop navigation, collapsible mobile menu, contextual breadcrumbs, per-module section indexes, keyboard-focusable research tables and corrected early OLG role entries. Open `index.html` in a modern browser; no installation, server, API key or internet connection is required (public source links do require internet). The website is a self-contained prototype for easy review and future migration into a modular repository.
 
 ## Start here
 - `index.html` or `#home`: portfolio overview and choice of two experiences.
 - `#executive-1` through `#executive-5`: a roughly five-minute, self-paced decision narrative. Each stop links to the detailed supporting module; the sidebar resumes the current tour step in this browser session. Tour numbers are fixed baseline snapshots, not live filtered values.
 - `#technical`: six-module capability map with suggested experiments, methods, limitations and available exports.
-- `#experience`: professional background, selected examples of transferable work, and a role-alignment matrix linking experience to the independent demonstrations. Career facts are based on the author's public professional portfolio at https://travis-mccormack-analytics.com/ ; no private CV or internal employer material is reproduced. Distinguish demonstrated methods from claims about employment experience.
+- `#experience`: professional background, selected examples of transferable work, and a role-alignment matrix linking experience to the independent demonstrations. Career facts are based on the author's public professional portfolio and author clarification (two years as Voice Network Analyst, listed separately from Quality Assurance Analyst; individual dates not inferred) at https://travis-mccormack-analytics.com/ ; no private CV or internal employer material is reproduced. Distinguish demonstrated methods from claims about employment experience.
 - `#module-1` through `#module-6`: direct entry to any original interactive module. Browser history and hash navigation preserve these routes.
+
+## Design and accessibility
+The standalone page uses a shared navy/teal/neutral visual system, system fonts, inline SVG and CSS; no remote design assets. Module anchors and section buttons preserve the page route and focus the destination. On narrow screens, navigation is collapsed by default and can be opened with the Menu control (Escape closes it). Wide tables are intentionally horizontally scrollable with named focusable regions. Keyboard focus and reduced-motion styling are included. Actual browser and assistive-technology validation is still required before public release.
 
 ## Roadmap
 1. Executive insights hub — implemented: public scorecard, executive decision brief, synthetic study filters, Wilson intervals, cross-tabs, association analysis, CSV export, research recommendations and source register.
