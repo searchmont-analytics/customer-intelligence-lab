@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 
-function smoke(html){
+function smoke(html, initialHash='#module-1'){
  const ids=new Set([...html.matchAll(/\bid="([^"]+)"/g)].map(m=>m[1]));
  const script=html.match(/<script>([\s\S]*?)<\/script>/)[1];
  const elements=new Map(),defaults={wave:"all",channel:"all",mSample:"80",mTarget:"40",mN:"600",mWave:"4",mOutcome:"productSatisfied",mChannel:"all",segK:"4",vocWave:"all",vocChannel:"all",vocThreshold:"50",pfW1:"3",pfW2:"3",pfW3:"2",pfW4:"2",pfBudget:"500",pfReserve:"10",pfCapacity:"10",pfCutoff:"2",pfActual:"200",pfRemainingVariance:"0",pfPriceWeight:"25",ldCase:"track",ldRole:"quant",ldSkillTarget:"4",ldPeriod:"2"};
@@ -10,6 +10,7 @@ function smoke(html){
  const assert=(cond,msg)=>{if(!cond)throw Error(msg)};
  assert(survey.length===2400,"Survey size");
  assert(survey.every(r=>r.needs.length===6&&r.needs.every(v=>Number.isInteger(v)&&v>=1&&v<=7)),"Needs scale");
+ if(location.hash==='#module-6'){assert(ldEvidence&&segmentResult,'Direct leadership startup');assert(Number($('segK').value)===segmentResult.defaultK,'Direct leadership startup preserves suggested segmentation default');}
  const original=JSON.stringify(survey);
  navigate(1);
  assert($('mWeights').innerHTML.includes('76.0%')&&$('mWeights').innerHTML.includes('68.0%')&&$('mWeights').innerHTML.includes('300'),"Calibration example");
@@ -111,7 +112,7 @@ function smoke(html){
  assert(JSON.stringify(survey)===original,"Leadership module mutated survey");
  for(let i=0;i<6;i++)navigate(i);
  return {suggestedK:segmentResult.recommend,variance:segmentResult.variance,summaries,vocSummary,pfSummary,leadershipSummary};
- `)(document,{hash:"#module-1"},{replaceState(){}});
+ `)(document,{hash:initialHash},{replaceState(){}});
 }
 
 const result = smoke(readFileSync(new URL('../index.html', import.meta.url), 'utf8'));
@@ -120,3 +121,5 @@ console.table(result.summaries.map(({profiles,...summary})=>summary));
 console.log('Voice of Customer:',result.vocSummary);
 console.log('Research portfolio:',result.pfSummary);
 console.log('Leadership & governance:',result.leadershipSummary);
+smoke(readFileSync(new URL('../index.html', import.meta.url), 'utf8'), '#module-6');
+console.log('Direct leadership entry regression passed');
