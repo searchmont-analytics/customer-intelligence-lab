@@ -4,7 +4,8 @@ function smoke(html, initialHash='#home'){
  const ids=new Set([...html.matchAll(/\bid="([^"]+)"/g)].map(m=>m[1]));
  const staticAssert=(ok,msg)=>{if(!ok)throw Error(msg)};
  staticAssert(html.includes("Voice Network Analyst · OLG</h4>")&&html.includes("Quality Assurance Analyst · OLG</h4>")&&!html.includes("Voice Network Analyst &amp; Quality Assurance Analyst"),"Distinct career roles");
- staticAssert(html.includes('<span class="profile-year">2 years</span>'),"Voice Network tenure");
+ staticAssert(html.includes('<span class="profile-year">2007–2009</span><div><h4>Voice Network Analyst · OLG</h4>'),"Confirmed Voice Network dates");
+ staticAssert(html.includes('<span class="profile-year">2009–2011*</span><div><h4>Quality Assurance Analyst · OLG</h4>'),"Separate inferred QA dates");
  const sectionCounts=[6,6,6,7,8,8],sectionIds=["hub","methodology","segmentation","voice","portfolio","leadership"];for(let i=0;i<sectionIds.length;i++){for(let j=0;j<sectionCounts[i];j++){const id="section-"+sectionIds[i]+"-"+j;staticAssert(ids.has(id)&&html.includes('data-jump="'+id+'"'),"Section navigation: "+id)}}
  staticAssert((html.match(/role="region" tabindex="0" aria-label=/g)||[]).length>=15,"Focusable tables");
  const script=html.match(/<script>([\s\S]*?)<\/script>/)[1];
