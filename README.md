@@ -1,12 +1,12 @@
 # Beyond the Numbers — Customer Intelligence & Research Lab
 
-Release 0.3: Executive Customer Insights Hub + Research Methodology Lab + Customer Segmentation Explorer. Open `index.html` in a modern browser; no installation, server, API key or internet connection is required (public source links do require internet). The website is a self-contained prototype for easy review and future migration into a modular repository.
+Release 0.4: Executive Customer Insights Hub + Research Methodology Lab + Customer Segmentation Explorer + Voice of Customer & AI. Open `index.html` in a modern browser; no installation, server, API key or internet connection is required (public source links do require internet). The website is a self-contained prototype for easy review and future migration into a modular repository.
 
 ## Roadmap
 1. Executive insights hub — implemented: public scorecard, executive decision brief, synthetic study filters, Wilson intervals, cross-tabs, association analysis, CSV export, research recommendations and source register.
 2. Research methodology — implemented: questionnaire split-ballot design, calibration and Kish effective sample size, cross-tabs, independent-wave z-test and fixed-mix tracking. Includes proposed research approval gates.
 3. Customer segmentation — implemented: six 1–7 synthetic needs ratings, standardized K-means++ (k=2–6, five starts), sampled silhouette, holdout resampling ARI, PCA visualization, calculated profiles, CSV export and responsible-use safeguards.
-4. Voice of Customer — synthetic interviews/comments, thematic coding, human validation, evidence triangulation.
+4. Voice of Customer — implemented: linked synthetic service journeys and feedback, browser-trained multilabel logistic regression and tone classification, generated-label validation, independent session-only reviewer coding, cross-source triangulation, wave monitoring and CSV export.
 5. Research portfolio & budget — intake, prioritization, allocation, vendor evaluation.
 6. Leadership & governance — team capability, quality gates, stakeholder partnerships and 90-day plan.
 
@@ -19,8 +19,15 @@ Release 0.3: Executive Customer Insights Hub + Research Methodology Lab + Custom
 - Suggested k maximizes sampled silhouette among candidates with ARI ≥ 0.65 and minimum share ≥ 5%. These are illustrative review gates, not validated industry standards. Near-ties and modest silhouette scores require substantive review; never infer real segments from planted synthetic structure.
 - Use segment profiles only to formulate hypotheses about accessibility, service quality, information clarity and informed choice. No promotional targeting or individual risk inference.
 
+## Voice of Customer methodology (0.4)
+- Generates one fictional service task per survey ID and a nonrepresentative feedback subset. Barrier-linked failure and feedback patterns are intentional simulation assumptions. The survey and segment inputs remain unchanged.
+- Trains separate one-vs-rest binary logistic regressions (unigrams/bigrams, deterministic sparse SGD, regularization) for five themes and four tone classes on 1,440 generated examples. Evaluation uses a different template bank with shared structure and vocabulary; reference labels are generator labels, not human annotations. No external AI service or internal customer data.
+- Theme threshold controls classification, micro F1, exact theme-set agreement and per-theme precision/recall. Tone is highest-scoring category. Scores are not calibrated probabilities. Report evaluation as synthetic benchmark, not real-world validation; formal model development requires a separate tuning set and untouched human-coded evaluation.
+- Session-only blinded review queue of 24 randomly sampled comments allows the visitor to enter independent theme codes before seeing automated labels; reviewer agreement is not evidence of production readiness. A review may be exported with the fictional feedback CSV.
+- Triangulation uses different denominators for submitted comments, survey barriers and simulated journey completion. Small groups are suppressed; wave comparisons are descriptive. Do not infer real-world causes or use tone/segment labels for individual gambling risk or promotion.
+
 ## Local regression smoke test
-Run `node tests/smoke.mjs` using a modern Node.js installation. The test checks the shared survey, calibration example, all cluster candidates, PCA, simulated DOM rendering and module navigation. This is not a real browser test.
+Run `node tests/smoke.mjs` using a modern Node.js installation. The test checks the shared survey, calibration example, all cluster candidates, PCA, feedback linkage, classifier metrics, threshold behavior, filter rendering, session review workflow and module navigation. This is not a real browser test.
 
 ## Validation before public deployment
 - Review copy, source pages, and methodology; add a prominent portfolio disclaimer on every page.
